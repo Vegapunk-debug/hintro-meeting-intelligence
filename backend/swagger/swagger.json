@@ -1,0 +1,252 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Hintro Meeting Intelligence API",
+    "version": "1.0.0",
+    "description": "AI-powered meeting intelligence service"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    },
+    {
+      "url": "https://your-render-url.onrender.com",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["Auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "Rohit" },
+                  "email": { "type": "string", "example": "rohit@example.com" },
+                  "password": { "type": "string", "example": "password123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User registered successfully" },
+          "409": { "description": "Email already registered" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Login and get JWT token",
+        "tags": ["Auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "rohit@example.com" },
+                  "password": { "type": "string", "example": "password123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful, returns JWT token" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/api/meetings": {
+      "post": {
+        "summary": "Create a new meeting",
+        "tags": ["Meetings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "participants", "meetingDate", "transcript"],
+                "properties": {
+                  "title": { "type": "string", "example": "Sprint Planning" },
+                  "participants": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": ["alice@example.com", "bob@example.com"]
+                  },
+                  "meetingDate": { "type": "string", "example": "2026-05-20T10:00:00Z" },
+                  "transcript": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": { "type": "string" },
+                        "speaker": { "type": "string" },
+                        "text": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Meeting created successfully" }
+        }
+      },
+      "get": {
+        "summary": "Get all meetings with pagination",
+        "tags": ["Meetings"],
+        "parameters": [
+          { "in": "query", "name": "page", "schema": { "type": "integer" } },
+          { "in": "query", "name": "limit", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "List of meetings" }
+        }
+      }
+    },
+    "/api/meetings/{id}": {
+      "get": {
+        "summary": "Get meeting by ID",
+        "tags": ["Meetings"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Meeting details" },
+          "404": { "description": "Meeting not found" }
+        }
+      }
+    },
+    "/api/meetings/{id}/analyze": {
+      "post": {
+        "summary": "Analyze meeting with AI",
+        "tags": ["Analysis"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "AI analysis with citations" },
+          "409": { "description": "Meeting already analyzed" }
+        }
+      }
+    },
+    "/api/action-items": {
+      "post": {
+        "summary": "Create an action item manually",
+        "tags": ["Action Items"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["meetingId", "task", "assignee"],
+                "properties": {
+                  "meetingId": { "type": "string" },
+                  "task": { "type": "string", "example": "Prepare release notes" },
+                  "assignee": { "type": "string", "example": "Alice" },
+                  "dueDate": { "type": "string", "example": "2026-05-25T10:00:00Z" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Action item created" }
+        }
+      },
+      "get": {
+        "summary": "Get all action items with filters",
+        "tags": ["Action Items"],
+        "parameters": [
+          { "in": "query", "name": "status", "schema": { "type": "string", "enum": ["PENDING", "IN_PROGRESS", "COMPLETED"] } },
+          { "in": "query", "name": "assignee", "schema": { "type": "string" } },
+          { "in": "query", "name": "meetingId", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of action items" }
+        }
+      }
+    },
+    "/api/action-items/{id}/status": {
+      "patch": {
+        "summary": "Update action item status",
+        "tags": ["Action Items"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "string", "enum": ["PENDING", "IN_PROGRESS", "COMPLETED"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status updated" }
+        }
+      }
+    },
+    "/api/action-items/overdue": {
+      "get": {
+        "summary": "Get overdue action items",
+        "tags": ["Action Items"],
+        "responses": {
+          "200": { "description": "List of overdue items" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": { "description": "Server is up" }
+        }
+      }
+    },
+    "/api/evaluation": {
+      "get": {
+        "summary": "Evaluation endpoint",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": { "description": "Candidate evaluation info" }
+        }
+      }
+    }
+  }
+}

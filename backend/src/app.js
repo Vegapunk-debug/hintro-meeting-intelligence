@@ -8,6 +8,9 @@ const meetingsRoutes = require('./modules/meetings/meetings.routes');
 const analysisRoutes = require('./modules/analysis/analysis.routes');
 const actionItemsRoutes = require('./modules/actionItems/actionItems.routes');
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('../swagger/swagger.json');
+
 const app = express()
 
 app.use(cors())
@@ -18,6 +21,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/meetings', meetingsRoutes)
 app.use('/api/meetings', analysisRoutes)
 app.use('/api/action-items', actionItemsRoutes)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 // TEMPORARY - test discord
 // app.get('/test-discord', async (req, res) => {
