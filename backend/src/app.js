@@ -19,6 +19,19 @@ app.use('/api/meetings', meetingsRoutes)
 app.use('/api/meetings', analysisRoutes)
 app.use('/api/action-items', actionItemsRoutes)
 
+// TEMPORARY - test discord
+// app.get('/test-discord', async (req, res) => {
+//   const { sendDiscordReminder } = require('./modules/reminders/reminder.service');
+//   await sendDiscordReminder({
+//     id: '2fc3ff92-e0d0-4c80-a06c-c4b9f7a7f19e',
+//     task: 'Prepare release notes',
+//     assignee: 'Alice',
+//     dueDate: '2026-05-01T10:00:00.000Z',
+//     status: 'PENDING',
+//     meeting: { title: 'Sprint Planning' }
+//   });
+//   res.json({ success: true });
+// });
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' })
