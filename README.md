@@ -143,10 +143,13 @@ npm install
 
 ### 3. Set up environment variables
 
+From the `backend/` directory (where you are after step 1), copy the example file and fill in your values:
+
 ```bash
-cp .env.example .env
-# Fill in your values
+cp .env.example .env   # copies backend/.env.example -> backend/.env
 ```
+
+See [Environment Variables](#environment-variables) for what each value means.
 
 ### 4. Set up the database
 
