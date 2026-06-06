@@ -1,6 +1,7 @@
 const Groq = require('groq-sdk');
 const prisma = require('../../config/db');
 const createError = require('../../utils/error');
+const { validateCitations } = require('../../utils/citations');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -81,30 +82,10 @@ const analyzeMeeting = async (meetingId, userId) => {
     }
 
     // Layer 3 - Validate citations against real transcript timestamps
-    const validateCitations = (items, fieldName) => {
-        if (!items || items.length === 0) return [];
-
-        return items.map(item => {
-            const validCitations = item.citations?.filter(c =>
-                validTimestamps.includes(c.timestamp)
-            )
-
-            if (!validCitations || validCitations.length === 0) {
-                throw createError(
-                    `AI generated ${fieldName} without valid transcript citation`,
-                    422,
-                    'HALLUCINATION_DETECTED'
-                )
-            }
-
-            return { ...item, citations: validCitations }
-        })
-    }
-
-    const validatedSummary = validateCitations(parsed.summary, 'summary')
-    const validatedDecisions = validateCitations(parsed.decisions, 'decisions')
-    const validatedFollowUps = validateCitations(parsed.followUps, 'followUps')
-    const validatedActionItems = validateCitations(parsed.actionItems, 'actionItems')
+    const validatedSummary = validateCitations(parsed.summary, 'summary', validTimestamps)
+    const validatedDecisions = validateCitations(parsed.decisions, 'decisions', validTimestamps)
+    const validatedFollowUps = validateCitations(parsed.followUps, 'followUps', validTimestamps)
+    const validatedActionItems = validateCitations(parsed.actionItems, 'actionItems', validTimestamps)
 
     // Save analysis to DB
     const analysis = await prisma.analysis.create({
