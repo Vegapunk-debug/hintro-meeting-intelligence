@@ -4,6 +4,7 @@ const traceId = require('./middleware/traceId');
 const errorHandler = require('./middleware/errorHandler');
 const { successResponse } = require('./utils/response');
 const authRoutes = require('./modules/auth/auth.routes');
+const meetingsRoutes = require('./modules/meetings/meetings.routes');
 
 const app = express()
 
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use(traceId)
 
 app.use('/api/auth', authRoutes)
+app.use('/api/meetings', meetingsRoutes)
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' })

@@ -1,14 +1,12 @@
 const prisma = require('../../config/db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const createError = require('../../utils/error')
 
 const register = async ({ name, email, password }) => {
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) {
-        const error = new Error('Email already registered')
-        error.status = 409
-        error.code = 'EMAIL_EXISTS'
-        throw error
+        throw createError('Email already registered', 409, 'EMAIL_EXISTS')
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -27,18 +25,12 @@ const register = async ({ name, email, password }) => {
 const login = async ({ email, password }) => {
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
-        const error = new Error('Invalid email or password')
-        error.status = 401
-        error.code = 'INVALID_CREDENTIALS'
-        throw error
+         throw createError('Invalid email or password', 401, 'INVALID_CREDENTIALS')
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-        const error = new Error('Invalid email or password')
-        error.status = 401
-        error.code = 'INVALID_CREDENTIALS'
-        throw error
+        throw createError('Invalid email or password', 401, 'INVALID_CREDENTIALS')
     }
 
     const token = jwt.sign(
