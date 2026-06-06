@@ -6,6 +6,7 @@ const { successResponse } = require('./utils/response');
 const authRoutes = require('./modules/auth/auth.routes');
 const meetingsRoutes = require('./modules/meetings/meetings.routes');
 const analysisRoutes = require('./modules/analysis/analysis.routes');
+const actionItemsRoutes = require('./modules/actionItems/actionItems.routes');
 
 const app = express()
 
@@ -15,7 +16,9 @@ app.use(traceId)
 
 app.use('/api/auth', authRoutes)
 app.use('/api/meetings', meetingsRoutes)
-app.use('/api/meetings', analysisRoutes);
+app.use('/api/meetings', analysisRoutes)
+app.use('/api/action-items', actionItemsRoutes)
+
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' })
