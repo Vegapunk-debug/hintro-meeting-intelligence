@@ -1,10 +1,10 @@
 const prisma = require('../../config/db')
 const createError = require('../../utils/error')
 
-const createActionItem = async (meetingId, { task, assignee, dueDate }) => {
-    // verify meeting exists
-    const meeting = await prisma.meeting.findUnique({
-        where: { id: meetingId }
+const createActionItem = async (userId, meetingId, { task, assignee, dueDate }) => {
+    // verify meeting exists AND belongs to the requesting user
+    const meeting = await prisma.meeting.findFirst({
+        where: { id: meetingId, userId }
     })
 
     if (!meeting) {
@@ -24,7 +24,7 @@ const createActionItem = async (meetingId, { task, assignee, dueDate }) => {
     return actionItem
 }
 
-const updateStatus = async (id, status) => {
+const updateStatus = async (userId, id, status) => {
     const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED']
 
     if (!validStatuses.includes(status)) {
@@ -35,8 +35,9 @@ const updateStatus = async (id, status) => {
         )
     }
 
-    const actionItem = await prisma.actionItem.findUnique({
-        where: { id }
+    // only find the item if it belongs to one of the user's meetings
+    const actionItem = await prisma.actionItem.findFirst({
+        where: { id, meeting: { userId } }
     })
 
     if (!actionItem) {
@@ -49,8 +50,8 @@ const updateStatus = async (id, status) => {
     })
 }
 
-const getActionItems = async ({ status, assignee, meetingId }) => {
-    const where = {}
+const getActionItems = async (userId, { status, assignee, meetingId }) => {
+    const where = { meeting: { userId } }
 
     if (status) where.status = status
     if (assignee) where.assignee = { contains: assignee, mode: 'insensitive' }
@@ -63,9 +64,10 @@ const getActionItems = async ({ status, assignee, meetingId }) => {
     })
 }
 
-const getOverdueItems = async () => {
+const getOverdueItems = async (userId) => {
     return await prisma.actionItem.findMany({
         where: {
+            meeting: { userId },
             status: { not: 'COMPLETED' },
             dueDate: { lt: new Date() }
         },

@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const traceId = require('./middleware/traceId');
 const errorHandler = require('./middleware/errorHandler');
-const { successResponse } = require('./utils/response');
+const { successResponse, errorResponse } = require('./utils/response');
 const authRoutes = require('./modules/auth/auth.routes');
 const meetingsRoutes = require('./modules/meetings/meetings.routes');
 const analysisRoutes = require('./modules/analysis/analysis.routes');
@@ -58,6 +58,11 @@ app.get('/api/evaluation', (req, res) => {
       'Discord Integration'
     ]
   }))
+})
+
+// unknown routes -> unified error response (instead of default HTML 404)
+app.use((req, res) => {
+  res.status(404).json(errorResponse(req, 'NOT_FOUND', `Route ${req.method} ${req.path} not found`))
 })
 
 app.use(errorHandler)

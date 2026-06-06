@@ -4,14 +4,14 @@ const { updateStatus } = require('../src/modules/actionItems/actionItems.service
 // so the invalid-status path can be tested without a DB connection.
 describe('updateStatus validation', () => {
     it('rejects an unknown status with INVALID_STATUS', async () => {
-        await expect(updateStatus('some-id', 'DONE')).rejects.toMatchObject({
+        await expect(updateStatus('user-id', 'item-id', 'DONE')).rejects.toMatchObject({
             status: 400,
             code: 'INVALID_STATUS'
         })
     })
 
     it('rejects an empty status', async () => {
-        await expect(updateStatus('some-id', '')).rejects.toMatchObject({
+        await expect(updateStatus('user-id', 'item-id', '')).rejects.toMatchObject({
             code: 'INVALID_STATUS'
         })
     })

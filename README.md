@@ -131,7 +131,7 @@ Client Request
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/hintro-meeting-intelligence.git
+git clone https://github.com/Vegapunk-debug/hintro-meeting-intelligence.git
 cd hintro-meeting-intelligence/backend
 ```
 

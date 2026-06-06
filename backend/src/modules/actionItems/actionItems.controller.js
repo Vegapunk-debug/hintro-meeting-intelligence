@@ -5,6 +5,7 @@ const logger = require('../../utils/logger')
 const createActionItem = async (req, res, next) => {
     try {
         const actionItem = await actionItemsService.createActionItem(
+            req.user.userId,
             req.body.meetingId,
             req.body
         )
@@ -18,6 +19,7 @@ const createActionItem = async (req, res, next) => {
 const updateStatus = async (req, res, next) => {
     try {
         const actionItem = await actionItemsService.updateStatus(
+            req.user.userId,
             req.params.id,
             req.body.status
         )
@@ -33,7 +35,7 @@ const updateStatus = async (req, res, next) => {
 
 const getActionItems = async (req, res, next) => {
     try {
-        const items = await actionItemsService.getActionItems(req.query)
+        const items = await actionItemsService.getActionItems(req.user.userId, req.query)
         res.status(200).json(successResponse(req, items))
     } catch (err) {
         next(err)
@@ -42,7 +44,7 @@ const getActionItems = async (req, res, next) => {
 
 const getOverdueItems = async (req, res, next) => {
     try {
-        const items = await actionItemsService.getOverdueItems()
+        const items = await actionItemsService.getOverdueItems(req.user.userId)
         res.status(200).json(successResponse(req, items))
     } catch (err) {
         next(err)
