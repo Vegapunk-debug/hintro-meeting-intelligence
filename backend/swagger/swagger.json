@@ -33,9 +33,7 @@
         "/api/auth/register": {
             "post": {
                 "summary": "Register a new user",
-                "tags": [
-                    "Auth"
-                ],
+                "tags": ["Auth"],
                 "security": [],
                 "requestBody": {
                     "required": true,
@@ -79,9 +77,7 @@
         "/api/auth/login": {
             "post": {
                 "summary": "Login and get JWT token",
-                "tags": [
-                    "Auth"
-                ],
+                "tags": ["Auth"],
                 "security": [],
                 "requestBody": {
                     "required": true,
@@ -120,9 +116,7 @@
         "/api/meetings": {
             "post": {
                 "summary": "Create a new meeting",
-                "tags": [
-                    "Meetings"
-                ],
+                "tags": ["Meetings"],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -184,9 +178,7 @@
             },
             "get": {
                 "summary": "Get all meetings with pagination",
-                "tags": [
-                    "Meetings"
-                ],
+                "tags": ["Meetings"],
                 "parameters": [
                     {
                         "in": "query",
@@ -213,9 +205,7 @@
         "/api/meetings/{id}": {
             "get": {
                 "summary": "Get meeting by ID",
-                "tags": [
-                    "Meetings"
-                ],
+                "tags": ["Meetings"],
                 "parameters": [
                     {
                         "in": "path",
@@ -239,9 +229,7 @@
         "/api/meetings/{id}/analyze": {
             "post": {
                 "summary": "Analyze meeting with AI",
-                "tags": [
-                    "Analysis"
-                ],
+                "tags": ["Analysis"],
                 "parameters": [
                     {
                         "in": "path",
@@ -265,9 +253,7 @@
         "/api/action-items": {
             "post": {
                 "summary": "Create an action item manually",
-                "tags": [
-                    "Action Items"
-                ],
+                "tags": ["Action Items"],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -349,9 +335,7 @@
         "/api/action-items/{id}/status": {
             "patch": {
                 "summary": "Update action item status",
-                "tags": [
-                    "Action Items"
-                ],
+                "tags": ["Action Items"],
                 "parameters": [
                     {
                         "in": "path",
@@ -392,9 +376,7 @@
         "/api/action-items/overdue": {
             "get": {
                 "summary": "Get overdue action items",
-                "tags": [
-                    "Action Items"
-                ],
+                "tags": ["Action Items"],
                 "responses": {
                     "200": {
                         "description": "List of overdue items"
@@ -405,9 +387,7 @@
         "/health": {
             "get": {
                 "summary": "Health check",
-                "tags": [
-                    "System"
-                ],
+                "tags": ["System"],
                 "security": [],
                 "responses": {
                     "200": {
@@ -419,9 +399,7 @@
         "/api/evaluation": {
             "get": {
                 "summary": "Evaluation endpoint",
-                "tags": [
-                    "System"
-                ],
+                "tags": ["System"],
                 "security": [],
                 "responses": {
                     "200": {
