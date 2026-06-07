@@ -331,14 +331,20 @@
 
   // ---------- create meeting ----------
   $('#loadSample').addEventListener('click', () => {
-    $('#mTitle').value = 'Sprint Planning';
-    $('#mParticipants').value = 'alice@example.com, bob@example.com';
-    $('#mDate').value = '2026-05-20T10:00';
+    $('#mTitle').value = 'Q3 Launch Planning';
+    $('#mParticipants').value = 'priya@example.com, daniel@example.com, sara@example.com';
+    $('#mDate').value = '2026-06-02T15:00';
     $('#mTranscript').value =
-      '00:10 | John | We should launch next Friday.\n' +
-      '00:20 | Alice | I will prepare the release notes by Wednesday.\n' +
-      '00:35 | Bob | Let us freeze scope today, no new features.\n' +
-      '00:50 | Alice | I will also email the stakeholders an update.';
+      '00:00 | Priya | Let us lock the Q3 launch. The target date is August 15th.\n' +
+      '00:25 | Daniel | Engineering can hit that, but only if we freeze scope by next Friday.\n' +
+      '00:42 | Priya | Agreed. We freeze scope this Friday, no new features after that.\n' +
+      '01:05 | Sara | I will finish the onboarding redesign by August 1st.\n' +
+      '01:28 | Daniel | I will set up the staging environment and share access by Wednesday.\n' +
+      '01:50 | Priya | We have decided to drop the analytics dashboard from this release.\n' +
+      '02:15 | Sara | Marketing needs assets two weeks early, so I will coordinate with them.\n' +
+      '02:38 | Daniel | We should run a full load test before launch, I will own that.\n' +
+      '03:02 | Priya | Let us hold a go or no-go review on August 12th.\n' +
+      '03:20 | Sara | I will send the stakeholder update email right after this meeting.';
   });
 
   function parseTranscript(raw) {
