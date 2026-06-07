@@ -81,11 +81,24 @@ const analyzeMeeting = async (meetingId, userId) => {
         throw createError('AI returned invalid response', 500, 'AI_PARSE_ERROR');
     }
 
-    // Layer 3 - Validate citations against real transcript timestamps
+    // Layer 4 - Validate citations against real transcript timestamps.
+    // Per-insight: ungrounded items are dropped, grounded ones are kept.
     const validatedSummary = validateCitations(parsed.summary, 'summary', validTimestamps)
     const validatedDecisions = validateCitations(parsed.decisions, 'decisions', validTimestamps)
     const validatedFollowUps = validateCitations(parsed.followUps, 'followUps', validTimestamps)
     const validatedActionItems = validateCitations(parsed.actionItems, 'actionItems', validTimestamps)
+
+    // Fail-closed floor: if NOTHING grounded across every section, the model
+    // returned a fully ungrounded response — reject it rather than store an
+    // empty, useless analysis.
+    if (
+        validatedSummary.length === 0 &&
+        validatedDecisions.length === 0 &&
+        validatedFollowUps.length === 0 &&
+        validatedActionItems.length === 0
+    ) {
+        throw createError('AI returned no grounded insights', 422, 'HALLUCINATION_DETECTED')
+    }
 
     // Save analysis to DB
     const analysis = await prisma.analysis.create({

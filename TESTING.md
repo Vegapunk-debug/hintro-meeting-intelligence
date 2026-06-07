@@ -57,7 +57,7 @@
 
 ## Automated Unit Tests
 
-Run with `npm test` (also runs in CI on every push/PR). Current suite: **15 tests across 5 files**
+Run with `npm test` (also runs in CI on every push/PR). Current suite: **16 tests across 5 files**
 
 - `validation.test.js` — Zod validate middleware (email, missing fields, dates, transcript)
 - `citations.test.js` — citation grounding / hallucination detection

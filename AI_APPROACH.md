@@ -22,10 +22,13 @@ Format → "[00:10] John: We should launch next Friday."
 Groq AI (temp 0.1, json_object mode)
     │
     ▼
-validateCitations() ← grounding gate
+validateCitations() ← grounding gate (per-insight)
     │
-    ├── valid   → persist Analysis + ActionItems
-    └── invalid → 422 HALLUCINATION_DETECTED
+    ├── grounded item   → kept
+    ├── ungrounded item → dropped (never faked)
+    │
+    ├── something grounded → persist Analysis + ActionItems
+    └── nothing grounded   → 422 HALLUCINATION_DETECTED (fail-closed floor)
 ```
 
 ---
@@ -60,18 +63,19 @@ If no decisions exist, return empty array.
 | **1. System prompt** | Explicit "never invent" rules |
 | **2. Timestamp whitelist** | Only valid timestamps listed in prompt |
 | **3. Temperature 0.1** | Near-deterministic, suppresses creative drift |
-| **4. Code validation** | Every citation checked against real transcript — no valid citation = request rejected |
+| **4. Code validation** | Every citation checked against the real transcript — ungrounded insights are **dropped**; the analysis is rejected only if *nothing* grounds |
 
 Layer 4 is the guarantee. Prompt engineering *reduces* hallucination. Code *eliminates* it.
 
 ```js
-// src/utils/citations.js
-if (!validCitations || validCitations.length === 0) {
-  throw createError('HALLUCINATION_DETECTED', 422, '...')
-}
+// src/utils/citations.js — keep grounded insights, drop ungrounded ones
+const validCitations = (item.citations || []).filter(c =>
+  validTimestamps.includes(c.timestamp)
+)
+return validCitations.length ? { ...item, citations: validCitations } : null  // drop if none
 ```
 
-**Failing loudly is intentional** — a wrong answer is worse than no answer.
+**Every returned insight is grounded** — ungrounded output is discarded rather than faked. If the model grounds *nothing at all*, the request fails closed with `422 HALLUCINATION_DETECTED` (a wrong answer is worse than no answer).
 
 ---
 
@@ -97,7 +101,8 @@ Citations are stored on both `Analysis` and `ActionItem` rows — traceability s
 |---|---|
 | Invalid JSON | `response_format: json_object` + try/catch |
 | Invented timestamps | `validateCitations()` filters against real set |
-| Uncited insights | Zero valid citations → `HALLUCINATION_DETECTED` |
+| Uncited insight | Dropped per-insight — never returned, never faked |
+| Fully ungrounded response | Zero grounded insights anywhere → `422 HALLUCINATION_DETECTED` |
 | Empty sections | Model instructed to return `[]`, not invent filler |
 | Duplicate analysis | Hard block — `ALREADY_ANALYZED` (409) |
 

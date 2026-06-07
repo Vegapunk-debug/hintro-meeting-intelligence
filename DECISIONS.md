@@ -91,10 +91,24 @@ Prompt   → reduces hallucination probability
 Code     → eliminates it deterministically
 ```
 
+Grounding is enforced **per-insight, with graceful degradation**: an insight whose
+citation doesn't match the real transcript is **dropped, not faked**, so every
+returned insight is guaranteed to be cited. The endpoint degrades gracefully
+instead of failing wholesale — but if the model returns a *fully* ungrounded
+response (nothing grounds across summary, decisions, action items, or follow-ups),
+it still **fails closed** with `422 HALLUCINATION_DETECTED`.
+
+**Why per-insight rather than all-or-nothing:**
+A strict "reject the whole analysis if any single line is uncited" gate is brittle
+with a small model — one uncited summary sentence would discard otherwise-perfect
+action items and decisions, and the core endpoint would intermittently return
+*nothing*. Serving the trustworthy subset and dropping the rest keeps the integrity
+guarantee while keeping the feature available — the production-grade trade-off.
+
 **Trade-offs:**
-- Strict validation can be conservative — a valid insight the model fails to cite is rejected rather than stored
-- This is a deliberate bias toward precision over recall
-- Failing with `422 HALLUCINATION_DETECTED` is intentional — a wrong answer is worse than no answer
+- Precision over recall remains the bias — an insight the model fails to cite is dropped rather than stored (implied-but-uncited content is intentionally lost)
+- Availability is preserved: a single uncited line no longer wipes out the whole analysis
+- The fail-closed floor still guarantees we never persist an empty, ungrounded "analysis"
 
 ---
 

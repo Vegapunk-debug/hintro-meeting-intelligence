@@ -430,7 +430,8 @@ Layer 3 → Temperature 0.1
 
 Layer 4 → Programmatic citation validation
           Every citation verified against real transcript timestamps
-          HALLUCINATION_DETECTED error thrown if invalid citation found
+          Ungrounded insights are dropped (never faked); the request fails
+          closed with HALLUCINATION_DETECTED only if nothing grounds at all
 ```
 
 ### JSON Mode
