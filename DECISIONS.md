@@ -140,7 +140,7 @@ Lightweight, zero external dependencies, simple cron syntax. Runs inside the sam
 - Stops running if the server restarts — acceptable for this scale
 - No job queue — if a Discord send fails, reminder is logged as error and skipped until next hourly run
 - Every overdue item gets a reminder every hour — no deduplication yet (known limitation)
-- On a free-tier host that sleeps when idle, the hourly job may not fire reliably — documented as a known limitation
+- On a free-tier host that sleeps when idle, the hourly job may not fire — mitigated by an uptime monitor that keeps the instance awake (see Decision #10)
 
 ---
 
@@ -170,3 +170,20 @@ Dockerfile gives a reproducible runtime — anyone can run `docker compose up --
 **Trade-offs:**
 - Render builds and runs the same `backend/Dockerfile` in production, so the local and deployed runtimes are identical — no "works on my machine" drift
 - The container applies migrations on startup (`prisma migrate deploy`) before serving traffic
+
+---
+
+## 10. Uptime Monitor — Keeping the In-Process Scheduler Reliable
+
+**Chosen:** An external uptime monitor that pings `GET /health` every 5 minutes
+
+**Why:**
+Render's free tier puts a service to sleep after ~15 minutes of inactivity. Because the reminder scheduler runs *in-process* via `node-cron` (Decision #7), a sleeping instance would silently skip the hourly overdue check. A lightweight uptime ping keeps the instance warm so scheduled reminders fire on time. It also removes cold-start latency for evaluators hitting the live URL.
+
+**Alternatives considered:**
+- Render Cron Jobs / an always-on background worker — more robust, but a separate paid/always-on service and extra infrastructure for the assignment's scale
+- Upgrading off the free tier — out of scope
+
+**Trade-offs:**
+- This keeps a single instance awake; it is not a substitute for a dedicated external scheduler if the app were scaled to multiple instances (reminders would still need de-duplication / leader election)
+- Adds a small, constant amount of idle traffic — negligible at this scale

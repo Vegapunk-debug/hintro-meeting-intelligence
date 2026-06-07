@@ -226,6 +226,10 @@ schema is applied automatically on every deploy. Set the values from
 [Environment Variables](#environment-variables) in the Render dashboard under
 **Settings → Environment**.
 
+> **Uptime monitor:** an external monitor pings `GET /health` every 5 minutes to keep the
+> free-tier instance awake, so the in-process reminder scheduler fires reliably and the live
+> URL has no cold-start delay. See [DECISIONS.md](./DECISIONS.md) (Decision #10).
+
 ### Deploy with Docker (any host)
 
 The same `Dockerfile` (`backend/Dockerfile`) runs anywhere — it applies migrations, then
