@@ -10,7 +10,7 @@
 
 ### AI-powered backend that turns raw meeting transcripts into structured insights, action items, and automated reminders.
 
-[Live API](https://hintro-meeting-intelligence-yq8w.onrender.com) · [Swagger Docs](https://hintro-meeting-intelligence-yq8w.onrender.com/api-docs) · [GitHub](https://github.com/Vegapunk-debug/hintro-meeting-intelligence)
+[Live API](https://hintro-meeting-intelligence-yq8w.onrender.com) · [Swagger Docs](https://hintro-meeting-intelligence-yq8w.onrender.com/api-docs) · [Evaluation](https://hintro-meeting-intelligence-yq8w.onrender.com/api/evaluation)
 
 </div>
 
