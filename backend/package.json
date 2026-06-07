@@ -5,7 +5,12 @@
   "scripts": {
     "test": "jest",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "prisma generate && prisma migrate deploy",
+    "postinstall": "prisma generate"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "Rohit",
