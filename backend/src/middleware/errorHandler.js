@@ -8,6 +8,11 @@ const errorHandler = (err, req, res, next) => {
         stack: err.stack
     })
 
+    // Malformed JSON body (thrown by express.json) -> clean validation error
+    if (err.type === 'entity.parse.failed') {
+        return res.status(400).json(errorResponse(req, 'VALIDATION_ERROR', 'Malformed JSON in request body'))
+    }
+
     const status = err.status || 500
     const code = err.code || 'INTERNAL_ERROR'
     const message = err.message || 'Something went wrong'
