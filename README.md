@@ -22,8 +22,10 @@
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
+- [Documentation](#documentation)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
+- [Deployment](#deployment)
 - [API Reference](#api-reference)
 - [AI Approach](#ai-approach)
 - [Project Structure](#project-structure)
@@ -63,61 +65,81 @@ Hintro Meeting Intelligence is a production-grade REST API that:
 
 ## Tech Stack
 
-```
-Runtime       →  Node.js v18+ + Express.js
-Database      →  PostgreSQL (Neon) + Prisma ORM v6
-AI Provider   →  Groq (llama-3.1-8b-instant)
-Auth          →  JWT + bcryptjs
-Notifications →  Discord Webhook
-Scheduler     →  node-cron
-Validation    →  Zod (schema-based request validation)
-Docs          →  Swagger UI (swagger-ui-express)
-Container     →  Docker + docker-compose
-CI            →  GitHub Actions
-Deployment    →  Render
-```
+| Layer | Technology |
+|---|---|
+| Runtime | Node.js v18+ · Express.js 5 |
+| Database | PostgreSQL (Neon) · Prisma ORM v6 |
+| AI Provider | Groq · `llama-3.1-8b-instant` |
+| Auth | JWT · bcryptjs |
+| Notifications | Discord Webhook |
+| Scheduler | node-cron |
+| Validation | Zod (schema-based request validation) |
+| Docs | Swagger UI (`swagger-ui-express`) |
+| Container | Docker · docker-compose |
+| CI | GitHub Actions |
+| Deployment | Render |
 
 ---
 
 ## Architecture
 
-```
-Client Request
-      │
-      ▼
-  TraceID Middleware      ← generates unique ID per request
-      │
-      ▼
-  Auth Middleware         ← verifies JWT token
-      │
-      ▼
-  Validation Middleware   ← validates request body (Zod)
-      │
-      ▼
-  Controller              ← handles req/res
-      │
-      ▼
-  Service                 ← business logic + DB queries
-      │
-      ▼
-  Prisma ORM             ← talks to PostgreSQL
-      │
-      ▼
-  PostgreSQL (Neon)      ← stores all data
+```mermaid
+graph TD;
+    Client["API Client / Swagger UI"] -->|HTTPS REST| Express["Express 5 App<br/>(cors · express.json)"];
 
-  ─────────────────────────────────────
+    subgraph Global["Global Middleware (app.js)"]
+        Express --> Trace["TraceID<br/>(unique id per request)"];
+        Trace --> Logger["Request Logger<br/>(structured JSON logs)"];
+    end
 
-  node-cron (every hour)
-      │
-      ▼
-  Find overdue items
-      │
-      ▼
-  Discord Webhook        ← sends rich embed notification
-      │
-      ▼
-  ReminderLog            ← records reminder history
+    Logger --> Router{"Route<br/>/api/*"};
+
+    subgraph PerRoute["Per-Route Middleware"]
+        Router --> Auth["JWT Authenticate"];
+        Auth --> Valid["Zod Validate<br/>(on write routes)"];
+    end
+
+    Valid --> Ctrl["Controller<br/>(req / res)"];
+    Ctrl --> Svc["Service<br/>(business logic)"];
+
+    subgraph Modules["Feature Modules"]
+        Svc --> M1["auth"];
+        Svc --> M2["meetings"];
+        Svc --> M3["analysis"];
+        Svc --> M4["actionItems"];
+    end
+
+    M3 -->|"transcript prompt<br/>(JSON mode, temp 0.1)"| Groq["Groq LLM<br/>llama-3.1-8b-instant"];
+    Groq -->|raw insights| Cite["validateCitations<br/>(4-layer hallucination guard)"];
+    Cite --> Svc;
+
+    Svc -->|Read / Write| Prisma["Prisma ORM v6"];
+    Prisma --> DB[("PostgreSQL · Neon<br/>User · Meeting · Analysis<br/>ActionItem · ReminderLog")];
+
+    Ctrl -.->|throws| Err["Error Handler<br/>(unified error response)"];
+
+    subgraph Scheduler["Background Scheduler"]
+        Cron["node-cron<br/>(every hour)"] --> Overdue["Overdue Checker<br/>(status ≠ COMPLETED & dueDate &lt; now)"];
+    end
+
+    Overdue -->|query overdue items| Prisma;
+    Overdue -->|rich embed POST| Discord["Discord Webhook"];
+    Overdue -->|record history| Prisma;
 ```
+
+---
+
+## Documentation
+
+Additional docs live alongside this README:
+
+| Document | What's inside |
+|---|---|
+| [AI_APPROACH.md](./AI_APPROACH.md) | Provider/model choice, prompt design, and the 4-layer hallucination-prevention strategy |
+| [DECISIONS.md](./DECISIONS.md) | Technical decisions and trade-offs (database, ORM, auth, scheduler, etc.) |
+| [TESTING.md](./TESTING.md) | Test scenarios executed and how to run the suite |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history |
+| [CHECKLIST.md](./CHECKLIST.md) | Submission checklist against the assignment requirements |
 
 ---
 
@@ -212,6 +234,43 @@ GROQ_API_KEY=your-groq-api-key
 # Notifications
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your-webhook-url
 ```
+
+---
+
+## Deployment
+
+The API is deployed on **Render** and auto-deploys on every push to `main`. It is live at
+[`https://hintro-meeting-intelligence-yq8w.onrender.com`](https://hintro-meeting-intelligence-yq8w.onrender.com).
+
+### Render (current setup)
+
+Render builds and runs the service directly from the `Dockerfile` — no build/start commands
+are configured in the dashboard; they come from the image.
+
+| Setting | Value |
+|---|---|
+| Environment | Docker |
+| Root Directory | `backend` |
+| Dockerfile Path | `backend/Dockerfile` |
+| Health Check Path | `/health` |
+
+On start the container runs `npx prisma migrate deploy && node server.js`, so the database
+schema is applied automatically on every deploy. Set the values from
+[Environment Variables](#environment-variables) in the Render dashboard under
+**Settings → Environment**.
+
+### Deploy with Docker (any host)
+
+The same `Dockerfile` (`backend/Dockerfile`) runs anywhere — it applies migrations, then
+boots the server:
+
+```bash
+cd backend
+docker build -t hintro-meeting-intelligence .
+docker run -p 3000:3000 --env-file .env hintro-meeting-intelligence
+```
+
+On start the container runs `npx prisma migrate deploy && node server.js`.
 
 ---
 
@@ -409,6 +468,9 @@ Groq's `response_format: { type: "json_object" }` guarantees valid JSON output �
 
 ## Project Structure
 
+<details>
+<summary>Click to expand the full directory tree</summary>
+
 ```
 backend/
 ├── prisma/
@@ -450,29 +512,7 @@ backend/
 
 > Each module also has a `*.schema.js` (Zod) used by the `validate` middleware.
 
----
-
-
-### Live URLs
-
-| Resource | URL |
-|---|---|
-| API Base | `https://hintro-meeting-intelligence-yq8w.onrender.com` |
-| Swagger Docs | `https://hintro-meeting-intelligence-yq8w.onrender.com/api-docs` |
-| Health Check | `https://hintro-meeting-intelligence-yq8w.onrender.com/health` |
-| Evaluation | `https://hintro-meeting-intelligence-yq8w.onrender.com/api/evaluation` |
-
----
-
-## Database Schema
-
-```
-User
- └── Meeting (one-to-many)
-      ├── Analysis (one-to-one)
-      └── ActionItem (one-to-many)
-           └── ReminderLog (one-to-many)
-```
+</details>
 
 ---
 
