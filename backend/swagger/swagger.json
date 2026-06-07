@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "https://hintro-meeting-intelligence.onrender.com",
+            "url": "https://hintro-meeting-intelligence-yq8w.onrender.com",
             "description": "Production server"
         },
         {
