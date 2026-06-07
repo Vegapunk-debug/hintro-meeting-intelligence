@@ -43,7 +43,12 @@ app.get('/api/evaluation', (req, res) => {
       'Action Item Management',
       'Overdue Detection',
       'Reminder Scheduler',
-      'Discord Integration'
+      'Discord Integration',
+      'Input Validation',
+      'Structured Logging',
+      'Swagger/OpenAPI Docs',
+      'Docker',
+      'CI/CD Pipeline'
     ]
   }))
 })
