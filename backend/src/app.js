@@ -25,6 +25,16 @@ app.use('/api/meetings', analysisRoutes)
 app.use('/api/action-items', actionItemsRoutes)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
+app.get('/', (req, res) => {
+  res.json(successResponse(req, {
+    service: 'Hintro Meeting Intelligence API',
+    status: 'running',
+    documentation: '/api-docs',
+    health: '/health',
+    evaluation: '/api/evaluation'
+  }))
+});
+
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' })
 });
