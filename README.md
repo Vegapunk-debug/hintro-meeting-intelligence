@@ -19,15 +19,14 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
-- [Documentation](#documentation)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [Deployment](#deployment)
 - [API Reference](#api-reference)
 - [AI Approach](#ai-approach)
+- [Documentation](#documentation)
 - [Project Structure](#project-structure)
 
 ---
@@ -42,24 +41,6 @@ Hintro Meeting Intelligence is a production-grade REST API that:
 - **Tracks** action items through their lifecycle
 - **Detects** overdue tasks automatically
 - **Notifies** teams via Discord when items are overdue
-
----
-
-## Features
-
-| Feature | Description | Status |
-|---|---|---|
-| JWT Authentication | Secure register & login | ✅ Done |
-| Meeting Management | Create, list, get meetings with pagination | ✅ Done |
-| AI Analysis | Groq-powered insights with citation grounding | ✅ Done |
-| Hallucination Prevention | 4-layer validation strategy | ✅ Done |
-| Action Items | Create, update, filter tasks | ✅ Done |
-| Overdue Detection | Auto-detects past-due incomplete tasks | ✅ Done |
-| Discord Reminders | Automated webhook notifications | ✅ Done |
-| Cron Scheduler | Runs overdue check every hour | ✅ Done |
-| Swagger Docs | Full OpenAPI 3.0 documentation | ✅ Done |
-| Trace IDs | Every request tracked end-to-end | ✅ Done |
-| Structured Logging | JSON logs with timestamp & context | ✅ Done |
 
 ---
 
@@ -126,20 +107,6 @@ graph TD;
     Overdue -->|rich embed POST| Discord["Discord Webhook"];
     Overdue -->|record history| Prisma;
 ```
-
----
-
-## Documentation
-
-Additional docs live alongside this README:
-
-| Document | What's inside |
-|---|---|
-| [AI_APPROACH.md](./AI_APPROACH.md) | Provider/model choice, prompt design, and the 4-layer hallucination-prevention strategy |
-| [DECISIONS.md](./DECISIONS.md) | Technical decisions and trade-offs (database, ORM, auth, scheduler, etc.) |
-| [TESTING.md](./TESTING.md) | Test scenarios executed and how to run the suite |
-| [CHANGELOG.md](./CHANGELOG.md) | Version history |
-| [CHECKLIST.md](./CHECKLIST.md) | Submission checklist against the assignment requirements |
 
 ---
 
@@ -463,6 +430,18 @@ Layer 4 → Programmatic citation validation
 ### JSON Mode
 
 Groq's `response_format: { type: "json_object" }` guarantees valid JSON output — eliminating parse errors entirely.
+
+---
+
+## Documentation
+
+| Document | What's inside |
+|---|---|
+| [AI_APPROACH.md](./AI_APPROACH.md) | Provider/model choice, prompt design, and the 4-layer hallucination-prevention strategy |
+| [DECISIONS.md](./DECISIONS.md) | Technical decisions and trade-offs (database, ORM, auth, scheduler, etc.) |
+| [TESTING.md](./TESTING.md) | Test scenarios executed and how to run the suite |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history |
+| [CHECKLIST.md](./CHECKLIST.md) | Submission checklist against the assignment requirements |
 
 ---
 
