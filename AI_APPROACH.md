@@ -1,29 +1,83 @@
 # AI Approach
 
-## Overview
+## Provider & Model
 
-The AI analysis pipeline uses Groq's llama-3.1-8b-instant model to extract
-structured insights from meeting transcripts with zero hallucination tolerance.
+| | |
+|---|---|
+| **Provider** | Groq |
+| **Model** | `llama-3.1-8b-instant` |
+| **Why** | Free, fast, native JSON mode, OpenAI-compatible API |
+
+---
+
+## Pipeline
+
+```
+Transcript
+    │
+    ▼
+Format → "[00:10] John: We should launch next Friday."
+    │
+    ▼
+Groq AI (temp 0.1, json_object mode)
+    │
+    ▼
+validateCitations() ← grounding gate
+    │
+    ├── valid   → persist Analysis + ActionItems
+    └── invalid → 422 HALLUCINATION_DETECTED
+```
+
+---
 
 ## Prompt Design
 
-The prompt uses a two-message structure:
+Two-message structure:
 
-**System message** — defines the AI's role and hard constraints:
-- Only extract information explicitly stated in transcript
-- Never invent attendees, tasks, or decisions
-- Always cite exact timestamps
-- Respond only with valid JSON
+**System** — sets the role and hard rules:
+```
+You ONLY use information explicitly stated in the transcript.
+You NEVER invent attendees, tasks, decisions, or outcomes.
+You ALWAYS cite the exact timestamp for every insight.
+```
 
-**User message** — provides transcript and output schema:
-- Formatted transcript with timestamps
-- List of valid timestamps explicitly included
-- Exact JSON structure required
-- Empty array instructions for missing data
+**User** — provides data + whitelist + schema:
+```
+Valid timestamps are: 00:10, 00:20, 00:30
+If no decisions exist, return empty array.
+```
+
+> The "return empty array" instruction is the single most effective
+> anti-hallucination prompt — it gives the model a legitimate exit
+> instead of forcing it to invent content.
+
+---
+
+## Hallucination Prevention — 4 Layers
+
+| Layer | What it does |
+|---|---|
+| **1. System prompt** | Explicit "never invent" rules |
+| **2. Timestamp whitelist** | Only valid timestamps listed in prompt |
+| **3. Temperature 0.1** | Near-deterministic, suppresses creative drift |
+| **4. Code validation** | Every citation checked against real transcript — no valid citation = request rejected |
+
+Layer 4 is the guarantee. Prompt engineering *reduces* hallucination. Code *eliminates* it.
+
+```js
+// src/utils/citations.js
+if (!validCitations || validCitations.length === 0) {
+  throw createError('HALLUCINATION_DETECTED', 422, '...')
+}
+```
+
+**Failing loudly is intentional** — a wrong answer is worse than no answer.
+
+---
 
 ## Citation Strategy
 
-Every generated insight must include at least one citation:
+Every insight carries citations back to the exact transcript timestamp:
 
 ```json
 {
@@ -33,47 +87,26 @@ Every generated insight must include at least one citation:
 }
 ```
 
-Citations reference exact transcript timestamps so every insight
-can be traced back to its source.
+Citations are stored on both `Analysis` and `ActionItem` rows — traceability survives beyond the API response.
 
-## Hallucination Prevention — 4 Layers
+---
 
-**Layer 1 — System Prompt Rules**
-Explicit instructions telling the AI what it must never do.
+## Output Validation
 
-**Layer 2 — Valid Timestamps in Prompt**
-The prompt includes the list of valid timestamps. AI can only
-cite timestamps that actually exist.
+| Risk | Mitigation |
+|---|---|
+| Invalid JSON | `response_format: json_object` + try/catch |
+| Invented timestamps | `validateCitations()` filters against real set |
+| Uncited insights | Zero valid citations → `HALLUCINATION_DETECTED` |
+| Empty sections | Model instructed to return `[]`, not invent filler |
+| Duplicate analysis | Hard block — `ALREADY_ANALYZED` (409) |
 
-**Layer 3 — Temperature 0.1**
-Low temperature makes the model deterministic and factual,
-reducing creative hallucination.
-
-**Layer 4 — Programmatic Citation Validation**
-After AI responds, every citation is validated against real
-transcript timestamps programmatically:
-
-```js
-const validCitations = item.citations?.filter(c =>
-  validTimestamps.includes(c.timestamp)
-);
-if (!validCitations || validCitations.length === 0) {
-  throw createError('HALLUCINATION_DETECTED', 422, '...');
-}
-```
-
-If AI invents a timestamp → request fails with HALLUCINATION_DETECTED error.
-
-## Output Validation Strategy
-
-- JSON mode enabled (response_format: json_object) → guarantees valid JSON
-- Schema validated after parsing
-- Empty arrays returned when no data found (not invented data)
-- Each section validated independently
+---
 
 ## Known Limitations
 
-- Very short transcripts may produce minimal insights
-- AI may miss implied decisions not explicitly stated
-- Rate limits on Groq free tier may cause delays under heavy load
-- Model may struggle with highly technical domain-specific transcripts
+- AI action items have no due date — transcripts rarely state explicit deadlines
+- One analysis per meeting — re-run/versioning not yet supported
+- Strict grounding is conservative — implied insights not explicitly stated are missed by design
+- No retry on transient Groq failures
+- Groq free-tier rate limits may add latency under load
