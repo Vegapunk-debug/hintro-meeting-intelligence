@@ -10,7 +10,7 @@
 
 ### AI-powered backend that turns raw meeting transcripts into structured insights, action items, and automated reminders.
 
-[Live API](https://your-render-url.onrender.com) · [Swagger Docs](https://your-render-url.onrender.com/api-docs) · [GitHub](https://github.com/Vegapunk-debug/hintro-meeting-intelligence)
+[Live API](https://hintro-meeting-intelligence.onrender.com) · [Swagger Docs](https://hintro-meeting-intelligence.onrender.com/api-docs) · [GitHub](https://github.com/Vegapunk-debug/hintro-meeting-intelligence)
 
 </div>
 
@@ -220,7 +220,7 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your-webhook-url
 ### Base URL
 ```
 Local:      http://localhost:3000
-Production: https://your-render-url.onrender.com
+Production: https://hintro-meeting-intelligence.onrender.com
 ```
 
 ### Authentication
@@ -457,10 +457,10 @@ backend/
 
 | Resource | URL |
 |---|---|
-| API Base | `https://your-render-url.onrender.com` |
-| Swagger Docs | `https://your-render-url.onrender.com/api-docs` |
-| Health Check | `https://your-render-url.onrender.com/health` |
-| Evaluation | `https://your-render-url.onrender.com/api/evaluation` |
+| API Base | `https://hintro-meeting-intelligence.onrender.com` |
+| Swagger Docs | `https://hintro-meeting-intelligence.onrender.com/api-docs` |
+| Health Check | `https://hintro-meeting-intelligence.onrender.com/health` |
+| Evaluation | `https://hintro-meeting-intelligence.onrender.com/api/evaluation` |
 
 ---
 

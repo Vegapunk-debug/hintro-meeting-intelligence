@@ -34,7 +34,7 @@ app.get('/api/evaluation', (req, res) => {
     candidateName: 'Rohit Nair P',
     email: 'rohitnairmuttathethu@gmail.com',
     repositoryUrl: 'https://github.com/Vegapunk-debug/hintro-meeting-intelligence',
-    deployedUrl: '',
+    deployedUrl: 'https://hintro-meeting-intelligence.onrender.com',
     externalIntegration: 'Discord Webhook',
     features: [
       'Authentication',

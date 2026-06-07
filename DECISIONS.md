@@ -168,4 +168,5 @@ Schema-first validation keeps rules declarative and colocated with each feature 
 Dockerfile gives a reproducible runtime — anyone can run `docker compose up --build` and get a working API + PostgreSQL stack locally without installing anything. CI runs `prisma generate` + the full unit test suite on every push, catching regressions before they reach Render.
 
 **Trade-offs:**
-- Render deploys from the native Node build (`npm install && npx prisma generate`) — Docker is provided as a portable local alternative, not the production deploy mechanism
+- Render builds and runs the same `backend/Dockerfile` in production, so the local and deployed runtimes are identical — no "works on my machine" drift
+- The container applies migrations on startup (`prisma migrate deploy`) before serving traffic
