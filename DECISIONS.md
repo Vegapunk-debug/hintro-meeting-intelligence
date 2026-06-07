@@ -86,13 +86,13 @@
 
 **Chosen:** Feature-based module structure
 
-\`\`\`
+```
 src/modules/auth/
 src/modules/meetings/
 src/modules/analysis/
 src/modules/actionItems/
 src/modules/reminders/
-\`\`\`
+```
 
 **Why:**
 - Each feature is self-contained (routes, controller, service)
@@ -127,3 +127,41 @@ src/modules/reminders/
 **Trade-offs:**
 - Stops running when server restarts
 - Acceptable for this assignment scope
+- On a free-tier host that sleeps when idle, the hourly job may not fire
+  reliably; documented as a known limitation in TESTING.md
+
+---
+
+## 7. Input Validation — Zod
+
+**Chosen:** Zod schemas applied via a reusable `validate()` middleware
+
+**Why:**
+- Schema-first validation keeps rules declarative and colocated with each feature
+  (`*.schema.js` next to the module)
+- A single `validate(schema)` middleware keeps controllers thin and consistent
+- Produces clean, field-aware `400 VALIDATION_ERROR` responses in the unified format
+- Action-item status keeps an additional enum guard in the service layer
+  (defense in depth, covered by unit tests)
+
+**Alternatives Considered:**
+- express-validator — more imperative, rules scattered across route definitions
+- Manual `if` checks in controllers — repetitive and easy to drift
+
+**Trade-offs:**
+- Adds a dependency, but eliminates hand-rolled validation and inconsistent errors
+
+---
+
+## 8. Containerization & CI
+
+**Chosen:** Dockerfile + docker-compose, GitHub Actions CI
+
+**Why:**
+- Dockerfile gives a reproducible runtime; compose spins up API + PostgreSQL locally
+- CI runs `prisma generate` + the unit test suite on every push/PR, catching
+  regressions before deploy
+
+**Trade-offs:**
+- Render itself deploys from the native Node build (Prisma generate + migrate in
+  the build step); Docker is provided as a portable alternative

@@ -42,5 +42,13 @@
 ### Phase 6 — Docs + Deployment
 - Added Swagger UI documentation
 - Added input validation with Zod
-- Deployed to Render
-- Updated evaluation endpoint
+- Configured Render deployment (Prisma generate + migrate deploy build steps)
+- Added evaluation and health endpoints
+
+### Phase 7 — Validation, Containerization + CI
+- Added Zod request-validation middleware with per-module schemas
+  (register, login, create meeting, create action item)
+- Normalized malformed-JSON errors to VALIDATION_ERROR
+- Added Dockerfile and .dockerignore for the backend
+- Added docker-compose for local API + PostgreSQL stack
+- Added GitHub Actions CI pipeline (install, prisma generate, unit tests)

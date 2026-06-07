@@ -70,8 +70,10 @@ AI Provider   →  Groq (llama-3.1-8b-instant)
 Auth          →  JWT + bcryptjs
 Notifications →  Discord Webhook
 Scheduler     →  node-cron
-Validation    →  Zod
+Validation    →  Zod (schema-based request validation)
 Docs          →  Swagger UI (swagger-ui-express)
+Container     →  Docker + docker-compose
+CI            →  GitHub Actions
 Deployment    →  Render
 ```
 
@@ -173,6 +175,19 @@ npm start
 ```
 http://localhost:3000/api-docs
 ```
+
+### Run with Docker (alternative)
+
+Spin up the API and a PostgreSQL database together:
+
+```bash
+cd backend
+# GROQ_API_KEY / DISCORD_WEBHOOK_URL are read from your shell or a .env file
+docker compose up --build
+```
+
+The container runs `prisma migrate deploy` on startup, then serves on
+`http://localhost:3000`.
 
 ---
 
@@ -422,11 +437,18 @@ backend/
 │   └── app.js                 # Express app
 ├── swagger/
 │   └── swagger.json           # OpenAPI spec
-├── tests/
+├── tests/                     # Jest unit tests
+├── Dockerfile                 # Container build
+├── docker-compose.yml         # Local API + PostgreSQL
+├── .dockerignore
 ├── server.js                  # Entry point
 ├── .env.example
 └── package.json
+
+.github/workflows/ci.yml       # GitHub Actions: install, prisma generate, test
 ```
+
+> Each module also has a `*.schema.js` (Zod) used by the `validate` middleware.
 
 ---
 
