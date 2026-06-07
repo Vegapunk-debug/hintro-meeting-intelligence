@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const traceId = require('./middleware/traceId');
+const requestLogger = require('./middleware/requestLogger');
 const errorHandler = require('./middleware/errorHandler');
 const { successResponse, errorResponse } = require('./utils/response');
 const authRoutes = require('./modules/auth/auth.routes');
@@ -16,6 +17,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(traceId)
+app.use(requestLogger)
 
 app.use('/api/auth', authRoutes)
 app.use('/api/meetings', meetingsRoutes)

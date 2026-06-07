@@ -4,7 +4,9 @@ const { errorResponse } = require("../utils/response")
 const errorHandler = (err, req, res, next) => {
     logger.error(req.traceId, err.message, {
         method: req.method,
-        path: req.path,
+        path: req.originalUrl,
+        status: err.status || 500,
+        code: err.code || 'INTERNAL_ERROR',
         stack: err.stack
     })
 
