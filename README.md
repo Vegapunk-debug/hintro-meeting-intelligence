@@ -10,7 +10,7 @@
 
 ### AI-powered backend that turns raw meeting transcripts into structured insights, action items, and automated reminders.
 
-[Live API](https://hintro-meeting-intelligence-yq8w.onrender.com) · [Swagger Docs](https://hintro-meeting-intelligence-yq8w.onrender.com/api-docs) · [Evaluation](https://hintro-meeting-intelligence-yq8w.onrender.com/api/evaluation)
+[Live Demo](https://hintro-meeting-intelligence-yq8w.onrender.com) · [Swagger Docs](https://hintro-meeting-intelligence-yq8w.onrender.com/api-docs) · [Evaluation](https://hintro-meeting-intelligence-yq8w.onrender.com/api/evaluation)
 
 </div>
 
@@ -41,6 +41,7 @@ Hintro Meeting Intelligence is a production-grade REST API that:
 - **Tracks** action items through their lifecycle
 - **Detects** overdue tasks automatically
 - **Notifies** teams via Discord when items are overdue
+- **Serves** a lightweight demo web UI at the root URL (`/`) for exploring the full workflow
 
 ---
 
@@ -55,6 +56,7 @@ Hintro Meeting Intelligence is a production-grade REST API that:
 | Notifications | Discord Webhook |
 | Scheduler | node-cron |
 | Validation | Zod (schema-based request validation) |
+| Demo UI | Static single-page client (vanilla JS + Tailwind), served from `/public` |
 | Docs | Swagger UI (`swagger-ui-express`) |
 | Container | Docker · docker-compose |
 | CI | GitHub Actions |
